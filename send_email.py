@@ -18,7 +18,7 @@ def send_email():
     msg = EmailMessage()
     msg.set_content(f"Message from {name} ({email}):\n\n{message}")
     msg["Subject"] = "New Contact Form"
-    msg["From"] = "USERNAME"
+    msg["From"] = os.getenv("USERNAME")
     msg["To"] = to
 
     smtp = smtplib.SMTP_SSL("smtp.gmail.com", 465)
