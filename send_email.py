@@ -1,36 +1,29 @@
 import os
 
+from flask import Flask, request
 import smtplib
-from email.mime.text import MIMEText
-from email.mime.multipart import MIMEMultipart
+from email.message import EmailMessage
+
+app = Flask(__name__)
 
 
-def send_email_to_client(name, email, phone, service, message):
-    sender_email = os.getenv("EMAIL_USERNAME")
-    app_password = os.getenv("APP_PW")
-    client_email = "habeb.rizmi@gmail.com"
-    smtp_server = "smtp.gmail.com"
-    smtp_port = 587
+@app.route("/send", methods=["POST"])
+def send_email():
+    data = request.form
+    name = data.get("name")
+    email = data.get("email")
+    message = data.get("message")
+    to = data.get("to")
 
-    subject = f"New Contact Form Submission from {name}"
-    body = f"""
-You’ve received a new response from the contact form:
+    msg = EmailMessage()
+    msg.set_content(f"Message from {name} ({email}):\n\n{message}")
+    msg["Subject"] = "New Contact Form"
+    msg["From"] = "USERNAME"
+    msg["To"] = to
 
-Name: {name}
-Email: {email}
-Phone: {phone}
-Service: {service}
-Message:
-{message}
-"""
+    smtp = smtplib.SMTP_SSL("smtp.gmail.com", 465)
+    smtp.login(os.getenv("USERNAME"), os.getenv("APP_PW"))
+    smtp.send_message(msg)
+    smtp.quit()
 
-    msg = MIMEMultipart()
-    msg["From"] = sender_email
-    msg["To"] = client_email
-    msg["Subject"] = subject
-    msg.attach(MIMEText(body, "plain"))
-
-    with smtplib.SMTP(smtp_server, smtp_port) as server:
-        server.starttls()
-        server.login(sender_email, app_password)
-        server.send_message(msg)
+    return "Sent", 200
