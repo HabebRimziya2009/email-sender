@@ -13,13 +13,12 @@ def send_email():
     name = data.get("name")
     email = data.get("email")
     message = data.get("message")
-    to = data.get("to")
 
     msg = EmailMessage()
     msg.set_content(f"Message from {name} ({email}):\n\n{message}")
     msg["Subject"] = "New Contact Form"
     msg["From"] = os.getenv("USERNAME")
-    msg["To"] = to
+    msg["To"] = email
 
     smtp = smtplib.SMTP_SSL("smtp.gmail.com", 465)
     smtp.login(os.getenv("USERNAME"), os.getenv("APP_PW"))
